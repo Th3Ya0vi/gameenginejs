@@ -1,5 +1,6 @@
-import { orchestrate, type Prompt } from './index.js';
 import http from 'node:http';
+
+import { orchestrate, type Prompt } from './index.js';
 
 const server = http.createServer(async (req, res) => {
   if (req.method !== 'POST') {

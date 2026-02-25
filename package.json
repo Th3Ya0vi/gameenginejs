@@ -1,0 +1,15 @@
+{
+  "name": "gameenginejs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Chat-driven game engine monorepo",
+  "scripts": {
+    "dev": "pnpm --filter editor dev",
+    "lint": "echo 'lint placeholder'",
+    "format": "prettier --write ."
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

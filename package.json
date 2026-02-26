@@ -6,10 +6,13 @@
   "description": "Chat-driven game engine monorepo",
   "scripts": {
     "dev": "pnpm --filter editor dev",
+    "dev:editor": "pnpm --filter editor dev",
+    "dev:ai": "pnpm --filter @gameenginejs/ai dev",
     "build": "pnpm -r --parallel build",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "export:web": "pnpm --filter editor build"
   },
   "engines": {
     "node": ">=20"

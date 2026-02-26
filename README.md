@@ -31,20 +31,22 @@
 ## Scripts
 | Command | Description |
 | --- | --- |
-| `pnpm install` | Install workspace dependencies |
-| `pnpm dev` | Run the editor dev server (placeholder UI) |
+| `pnpm dev:editor` | Run the chat IDE at <http://localhost:4321> |
+| `pnpm dev:ai` | Start the orchestrator stub (listens on `http://localhost:8787`) |
+| `pnpm export:web` | Build the editor bundle (web export MVP) |
 | `pnpm lint` | ESLint with shared TS/React rules |
 | `pnpm format` | Format everything with Prettier |
-| `pnpm build` | Run build scripts for all packages (currently placeholders) |
+
+> Tip: run `pnpm dev:ai` in one terminal and `pnpm dev:editor` in another so the chat panel can hit the stub API. Without the server the UI falls back to a dummy response.
 
 ## Contributing
 1. `pnpm install`
-2. `pnpm dev`
+2. `pnpm dev:ai` (optional but recommended) + `pnpm dev:editor`
 3. Open a PR using the templates provided. See [CONTRIBUTING.md](CONTRIBUTING.md) + [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Roadmap snapshot
-1. **Phase 0** – brand kit, OSS hygiene, prompt/asset plans (✅ ongoing).
-2. **Phase 1** – chat IDE + 2D runtime + web export.
+1. **Phase 0** – brand kit, OSS hygiene, prompt/asset plans (✅).
+2. **Phase 1** – chat IDE + 2D runtime + web export (in progress).
 3. **Phase 2** – desktop/mobile packaging, asset packs, donation hooks.
 4. **Phase 3** – sharing, real-time collab, plugin SDK, 3D groundwork.
 

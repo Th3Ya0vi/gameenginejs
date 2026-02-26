@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { RuntimeFrame } from '@gameenginejs/runtime';
 
+import { useRuntimeCanvas } from './runtime';
 import './app.css';
 
 const API_URL = 'http://localhost:8787';
@@ -9,10 +11,9 @@ type Message = {
   content: string;
 };
 
-type RuntimeState = {
-  version: number;
-  summary: string;
-  entityX: number;
+const emptyFrame: RuntimeFrame = {
+  summary: 'No scene yet.',
+  scene: { entities: [] }
 };
 
 export function App() {
@@ -24,13 +25,15 @@ export function App() {
   ]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const [runtime, setRuntime] = useState<RuntimeState>({ version: 0, summary: '', entityX: 40 });
+  const [frame, setFrame] = useState<RuntimeFrame>(emptyFrame);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const previewMessage = useMemo(() => runtime.summary || 'No scene yet.', [runtime]);
+  useRuntimeCanvas({ canvas: canvasRef.current, frame });
 
   const sendPrompt = async () => {
     if (!draft.trim()) return;
-    const nextUser: Message = { role: 'user', content: draft.trim() };
+    const promptText = draft.trim();
+    const nextUser: Message = { role: 'user', content: promptText };
     setMessages((prev) => [...prev, nextUser]);
     setDraft('');
     setSending(true);
@@ -39,25 +42,31 @@ export function App() {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([{ role: 'user', content: nextUser.content }])
+        body: JSON.stringify([{ role: 'user', content: promptText }])
       });
 
-      const data = await res.json();
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.summary ?? 'Generated scene diff.'
-      };
-      const entity = data.scene?.entities?.[0];
-      const x = entity?.components?.position?.x ?? 40;
+      const data: RuntimeFrame = await res.json();
+      const assistantMessage: Message = { role: 'assistant', content: data.summary };
       setMessages((prev) => [...prev, assistantMessage]);
-      setRuntime((prev) => ({ version: prev.version + 1, summary: assistantMessage.content, entityX: x }));
+      setFrame(data);
     } catch (error) {
-      const fallback: Message = {
-        role: 'assistant',
-        content: 'Stubbed response. (Run `pnpm --filter ai dev` for live output.)'
+      const fallback: RuntimeFrame = {
+        summary: 'Stubbed response. (Run `pnpm dev:ai` for live output.)',
+        scene: {
+          entities: [
+            {
+              id: 'player-fallback',
+              components: {
+                position: { x: 60, y: 160 },
+                size: { w: 36, h: 36 },
+                color: '#facc15'
+              }
+            }
+          ]
+        }
       };
-      setMessages((prev) => [...prev, fallback]);
-      setRuntime((prev) => ({ version: prev.version + 1, summary: fallback.content, entityX: 40 }));
+      setMessages((prev) => [...prev, { role: 'assistant', content: fallback.summary }]);
+      setFrame(fallback);
       console.error(error);
     } finally {
       setSending(false);
@@ -74,6 +83,8 @@ export function App() {
     return () => window.removeEventListener('keydown', handler);
   });
 
+  const latestSummary = useMemo(() => frame.summary, [frame]);
+
   return (
     <main>
       <header>
@@ -81,7 +92,7 @@ export function App() {
           <h1>gameengine.js</h1>
           <p>Phase 1 prototype — chat on the left, runtime preview on the right.</p>
         </div>
-        <div className="tag">runtime v{runtime.version}</div>
+        <div className="tag">entities {frame.scene.entities.length}</div>
       </header>
 
       <section className="workspace">
@@ -107,40 +118,10 @@ export function App() {
 
         <article className="panel preview">
           <h2>Runtime Preview</h2>
-          <CanvasPreview version={runtime.version} summary={previewMessage} entityX={runtime.entityX} />
+          <p className="preview-summary">{latestSummary}</p>
+          <canvas ref={canvasRef} width={480} height={260} />
         </article>
       </section>
     </main>
   );
 }
-
-type CanvasProps = {
-  version: number;
-  summary: string;
-  entityX: number;
-};
-
-const CanvasPreview = ({ version, summary, entityX }: CanvasProps) => {
-  useEffect(() => {
-    const canvas = document.getElementById('runtime-canvas') as HTMLCanvasElement | null;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = '#22d3ee';
-    ctx.font = '16px Inter, sans-serif';
-    ctx.fillText(`Runtime tick ${version}`, 16, 28);
-
-    ctx.fillStyle = '#c084fc';
-    ctx.fillText(summary.slice(0, 40), 16, 56);
-
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(entityX, 120, 40, 40);
-  }, [version, summary, entityX]);
-
-  return <canvas id="runtime-canvas" width={480} height={260} />;
-};

@@ -1,10 +1,10 @@
-import { createScene, type RuntimeFrame, type Scene } from './scene';
+import { type RuntimeFrame, type Scene } from './scene';
 
 export class Engine {
   private scene: Scene;
 
   constructor(initialScene?: Scene) {
-    this.scene = initialScene ?? createScene();
+    this.scene = initialScene ?? { entities: [] };
   }
 
   load(frame: RuntimeFrame) {
@@ -16,6 +16,4 @@ export class Engine {
   }
 }
 
-export const createEngine = () => new Engine();
-export { createScene };
-export type { Scene, RuntimeFrame };
+export type { Scene, RuntimeFrame } from './scene';

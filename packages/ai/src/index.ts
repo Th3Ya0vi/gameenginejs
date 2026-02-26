@@ -3,15 +3,33 @@ export type Prompt = {
   content: string;
 };
 
-export type OrchestratorResult = {
+export type RuntimeFrame = {
   summary: string;
-  projectDelta: Record<string, unknown>;
+  scene: {
+    entities: {
+      id: string;
+      components: Record<string, unknown>;
+    }[];
+  };
 };
 
-export async function orchestrate(prompts: Prompt[]): Promise<OrchestratorResult> {
-  // Placeholder – wire up OpenAI + Claude routing later.
+export async function orchestrate(prompts: Prompt[]): Promise<RuntimeFrame> {
+  const last = prompts[prompts.length - 1];
+  const summary = last?.content ?? 'No prompt received.';
+
   return {
-    summary: `Received ${prompts.length} prompt segments. AI wiring pending.`,
-    projectDelta: {}
+    summary,
+    scene: {
+      entities: [
+        {
+          id: 'player',
+          components: {
+            position: { x: Math.floor(Math.random() * 200), y: 120 },
+            size: { w: 40, h: 40 },
+            color: '#facc15'
+          }
+        }
+      ]
+    }
   };
 }

@@ -12,6 +12,7 @@ type Message = {
 type RuntimeState = {
   version: number;
   summary: string;
+  entityX: number;
 };
 
 export function App() {
@@ -23,7 +24,7 @@ export function App() {
   ]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const [runtime, setRuntime] = useState<RuntimeState>({ version: 0, summary: '' });
+  const [runtime, setRuntime] = useState<RuntimeState>({ version: 0, summary: '', entityX: 40 });
 
   const previewMessage = useMemo(() => runtime.summary || 'No scene yet.', [runtime]);
 
@@ -46,15 +47,17 @@ export function App() {
         role: 'assistant',
         content: data.summary ?? 'Generated scene diff.'
       };
+      const entity = data.scene?.entities?.[0];
+      const x = entity?.components?.position?.x ?? 40;
       setMessages((prev) => [...prev, assistantMessage]);
-      setRuntime({ version: runtime.version + 1, summary: assistantMessage.content });
+      setRuntime((prev) => ({ version: prev.version + 1, summary: assistantMessage.content, entityX: x }));
     } catch (error) {
       const fallback: Message = {
         role: 'assistant',
         content: 'Stubbed response. (Run `pnpm --filter ai dev` for live output.)'
       };
       setMessages((prev) => [...prev, fallback]);
-      setRuntime({ version: runtime.version + 1, summary: fallback.content });
+      setRuntime((prev) => ({ version: prev.version + 1, summary: fallback.content, entityX: 40 }));
       console.error(error);
     } finally {
       setSending(false);
@@ -104,7 +107,7 @@ export function App() {
 
         <article className="panel preview">
           <h2>Runtime Preview</h2>
-          <CanvasPreview version={runtime.version} summary={previewMessage} />
+          <CanvasPreview version={runtime.version} summary={previewMessage} entityX={runtime.entityX} />
         </article>
       </section>
     </main>
@@ -114,9 +117,10 @@ export function App() {
 type CanvasProps = {
   version: number;
   summary: string;
+  entityX: number;
 };
 
-const CanvasPreview = ({ version, summary }: CanvasProps) => {
+const CanvasPreview = ({ version, summary, entityX }: CanvasProps) => {
   useEffect(() => {
     const canvas = document.getElementById('runtime-canvas') as HTMLCanvasElement | null;
     if (!canvas) return;
@@ -134,10 +138,9 @@ const CanvasPreview = ({ version, summary }: CanvasProps) => {
     ctx.fillStyle = '#c084fc';
     ctx.fillText(summary.slice(0, 40), 16, 56);
 
-    // simple animated sprite substitute
     ctx.fillStyle = '#facc15';
-    ctx.fillRect(40 + (version % 200), 120, 40, 40);
-  }, [version, summary]);
+    ctx.fillRect(entityX, 120, 40, 40);
+  }, [version, summary, entityX]);
 
   return <canvas id="runtime-canvas" width={480} height={260} />;
 };

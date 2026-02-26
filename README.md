@@ -13,10 +13,10 @@
 ```
 .
 ├── apps/
-│   └── editor/        # Chat IDE + live preview (React + Vite placeholder)
+│   └── editor/        # Chat IDE + live preview (React + Vite)
 ├── packages/
-│   ├── runtime/       # TypeScript ECS/runtime core
-│   └── ai/            # AI orchestrator service stub (OpenAI + Claude)
+│   ├── runtime/       # TypeScript ECS/runtime core + scene helpers
+│   └── ai/            # Orchestrator stub (OpenAI/Claude wiring soon)
 ├── docs/
 │   ├── product-brief.md
 │   ├── architecture-outline.md
@@ -31,22 +31,22 @@
 ## Scripts
 | Command | Description |
 | --- | --- |
-| `pnpm dev:editor` | Run the chat IDE at <http://localhost:4321> |
-| `pnpm dev:ai` | Start the orchestrator stub (listens on `http://localhost:8787`) |
-| `pnpm export:web` | Build the editor bundle (web export MVP) |
-| `pnpm lint` | ESLint with shared TS/React rules |
-| `pnpm format` | Format everything with Prettier |
+| `pnpm dev:ai` | Start the orchestrator stub (http://localhost:8787) |
+| `pnpm dev:editor` | Run the chat IDE preview (http://localhost:4321) |
+| `pnpm export:web` | Build a static web bundle from the editor |
+| `pnpm lint` | ESLint across workspace |
+| `pnpm format` | Prettier formatting |
 
-> Tip: run `pnpm dev:ai` in one terminal and `pnpm dev:editor` in another so the chat panel can hit the stub API. Without the server the UI falls back to a dummy response.
+> Tip: run `pnpm dev:ai` and `pnpm dev:editor` side-by-side so the chat panel receives live runtime frames.
 
 ## Contributing
 1. `pnpm install`
-2. `pnpm dev:ai` (optional but recommended) + `pnpm dev:editor`
-3. Open a PR using the templates provided. See [CONTRIBUTING.md](CONTRIBUTING.md) + [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+2. `pnpm dev:ai` + `pnpm dev:editor`
+3. Use PR templates + follow [CONTRIBUTING.md](CONTRIBUTING.md) & [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Roadmap snapshot
 1. **Phase 0** – brand kit, OSS hygiene, prompt/asset plans (✅).
-2. **Phase 1** – chat IDE + 2D runtime + web export (in progress).
+2. **Phase 1** – chat IDE + runtime preview + export (🚧 ongoing).
 3. **Phase 2** – desktop/mobile packaging, asset packs, donation hooks.
 4. **Phase 3** – sharing, real-time collab, plugin SDK, 3D groundwork.
 

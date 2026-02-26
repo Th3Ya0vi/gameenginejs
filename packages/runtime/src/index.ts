@@ -1,24 +1,21 @@
-export type Vector2 = { x: number; y: number };
-
-export interface Entity {
-  id: string;
-  components: Record<string, unknown>;
-}
+import { createScene, type RuntimeFrame, type Scene } from './scene';
 
 export class Engine {
-  private entities: Map<string, Entity> = new Map();
+  private scene: Scene;
 
-  addEntity(entity: Entity) {
-    this.entities.set(entity.id, entity);
+  constructor(initialScene?: Scene) {
+    this.scene = initialScene ?? createScene();
   }
 
-  tick(dt: number) {
-    for (const entity of this.entities.values()) {
-      // Placeholder update loop; plug systems in later.
-      void entity;
-    }
-    return dt;
+  load(frame: RuntimeFrame) {
+    this.scene = frame.scene;
+  }
+
+  get current() {
+    return this.scene;
   }
 }
 
 export const createEngine = () => new Engine();
+export { createScene };
+export type { Scene, RuntimeFrame };
